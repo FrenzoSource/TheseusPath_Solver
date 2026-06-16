@@ -16,10 +16,13 @@ public class Ligne {
     }
 
     public ArrayList<Case> getLigne() { return this.ligne; }
+    public Case getCase(int i) { return this.ligne.get(i); }
 
     public void ajoutCase(Case c1) {
         this.ligne.add(c1);
     };
+
+    
 
     //Pour test
     public void afficherLigne() {

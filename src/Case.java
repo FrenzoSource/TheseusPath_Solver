@@ -10,7 +10,7 @@ package src;
 public class Case {
     private int x;
     private int y;
-    private boolean Mur;
+    private boolean Mur;  // true s'il sagit d'un mur 
     private boolean EstPasse;
 
 

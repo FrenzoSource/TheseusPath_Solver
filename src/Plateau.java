@@ -1,5 +1,7 @@
 package src;
 import java.util.*;
+import javax.swing.*;
+import java.awt.*;
 
 
 
@@ -8,20 +10,17 @@ import java.util.*;
 
 
 public class Plateau {
-    private int nbreLigne;
-    private int nbreCase;
     private ArrayList<Ligne> grille;
 
     Plateau() {
-        this.nbreCase = 0;
-        this.nbreLigne = 0;
         this.grille = new ArrayList<Ligne>();
     }
 
+    Plateau(ArrayList<Ligne> grille) {
+        this.grille = grille;
+    }
+
     public ArrayList<Ligne> getGrille() { return this.grille; }
-    public int getNbreCase() { return this.nbreCase; }
-    public int getNbreLigne() { return this.nbreLigne; }
-    public int getNbreColonne() { return this.nbreCase / this.nbreLigne; }
 
 
 
@@ -39,6 +38,31 @@ public class Plateau {
         for (Ligne ligne: this.grille) {
             ligne.afficherLigne();
         };
+    }
+
+    //Affichage par interface graphique du plateau 
+    public void afficherPlateau() {
+        JFrame panneau = new JFrame("Résolution labyrinthe");
+        panneau.setLayout(new GridLayout(this.grille.size(), this.grille.get(0).getLigne().size()));
+        //affichage selon la grille du plateau
+
+        
+
+
+        for (int i = 0; i < this.grille.size(); i++) {
+            Ligne ligne = this.grille.get(i);
+            for (int j = 0; j < ligne.getLigne().size(); j++) {
+                Case c = ligne.getCase(j);
+                JButton btnTmp = new JButton("");
+                if (c.getMur() == true) {btnTmp.setBackground(Color.black); };
+                panneau.add(btnTmp);
+
+            };
+        };
+
+
+        panneau.setSize(400, 400);
+        panneau.setVisible(true);
     }
 
 
