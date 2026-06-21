@@ -21,7 +21,7 @@ public class Plateau {
     }
 
     public ArrayList<Ligne> getGrille() { return this.grille; }
-
+    public void setGrille(ArrayList<Ligne> grille) { this.grille = grille; }
 
 
 

@@ -13,8 +13,18 @@ public class Main {
         conv1.recuperationDonnees();
         System.out.println("tentative d'affichge des données de la grille.");
         Plateau plat1 = conv1.getPlateau();
+        /*
         plat1.afficherGrille();
         plat1.afficherPlateau();
+        */
+
+        //tentative de reduction de skeletisation
+        ZhangSuen outilReduction = new ZhangSuen(plat1.getGrille());
+        plat1.setGrille(outilReduction.Optimisation(outilReduction.getGrille()));
+         
+        plat1.afficherGrille();
+        plat1.afficherPlateau();
+        
     }
     
 }

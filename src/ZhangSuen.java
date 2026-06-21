@@ -14,7 +14,7 @@ public class ZhangSuen implements Optimiseur {
     public ArrayList<Ligne> getGrille() { return this.grille; }
 
     //fonction retournant true si la case contient 8 voisins
-    public boolean VoisinsValides(int i, int j, ArrayList<Ligne> grille) {
+    public boolean Etape2(int i, int j, ArrayList<Ligne> grille) {
         /*Si la case est compris entre 1 et la taille -2 alors elle possède auto deux voisins 
         Le labirinthe doit avoir une taille supp a 3*/
         if (grille.get(0).getLigne().size() > 3) {
@@ -26,12 +26,12 @@ public class ZhangSuen implements Optimiseur {
 
                 for (int ligneActuelle = -1; ligneActuelle <= 1; ligneActuelle++) {
                     Ligne ligneTmp = new Ligne();
-                    for (int colonneActuelle = -1; colonneActuelle <= -1; colonneActuelle++) {
-                        ligneTmp.ajoutCase(grille.get(ligneActuelle).getCase(colonneActuelle));
+                    for (int colonneActuelle = -1; colonneActuelle <= 1; colonneActuelle++) {
+                        ligneTmp.ajoutCase(grille.get(i + ligneActuelle).getCase(j + colonneActuelle));
 
-                        if ((ligneActuelle != 1) && (colonneActuelle != 1)) { transitionsVoisins[indiceTabTrans] = grille.get(ligneActuelle).getCase(colonneActuelle).getMur(); indiceTabTrans++; }
+                        if ((ligneActuelle != 1) && (colonneActuelle != 1)) { transitionsVoisins[indiceTabTrans] = grille.get(i + ligneActuelle).getCase(j + colonneActuelle).getMur(); indiceTabTrans++; }
                         
-                        if (grille.get(ligneActuelle).getCase(colonneActuelle).getMur() == false) { nbreVoisinsBlanc++; };
+                        if (grille.get(i + ligneActuelle).getCase(j + colonneActuelle).getMur() == false) { nbreVoisinsBlanc++; };
                     };
                     tabTmp.add(ligneTmp);
                 };
@@ -41,6 +41,52 @@ public class ZhangSuen implements Optimiseur {
                 for (int k = 0; k < (transitionsVoisins.length-1); k++) {
                     if ((transitionsVoisins[k] == false) && (transitionsVoisins[k + 1] == true)) { black2white++; }
                 }
+                //if ((transitionsVoisins[7] == false) && (transitionsVoisins[0] == true)) { black2white++; }  //Etant donné que la liste est circulaire
+                //Verification finale des conditions
+                if (
+                    ((nbreVoisinsBlanc >= 2) && (nbreVoisinsBlanc <= 6)) &&
+                    ((grille.get(i - 1).getCase(j).getMur() == true) || (grille.get(i).getCase(j + 1).getMur() == true) || (grille.get(i).getCase(j - 1).getMur() == true)) &&
+                    ((grille.get(i - 1).getCase(j).getMur() == true) || (grille.get(i + 1).getCase(j).getMur() == true) || (grille.get(i).getCase(j - 1).getMur() == true)) &&
+                    (black2white == 1)
+                ) { return true; }
+                
+                return false;
+            }
+            else { return false;}
+
+        }
+        return false;
+        
+    }
+
+    public boolean Etape1(int i, int j, ArrayList<Ligne> grille) {
+        /*Si la case est compris entre 1 et la taille -2 alors elle possède auto deux voisins 
+        Le labirinthe doit avoir une taille supp a 3*/
+        if (grille.get(0).getLigne().size() > 3) {
+            if ((j > 0) && (j < grille.get(0).getLigne().size() - 1)) { 
+                ArrayList<Ligne> tabTmp = new ArrayList<Ligne>();  //tableau temporaire qui va permettre de verifier les conditions des voisins
+                int nbreVoisinsBlanc = 0;
+                boolean [] transitionsVoisins = new boolean[8];
+                int indiceTabTrans = 0;
+
+                for (int ligneActuelle = -1; ligneActuelle <= 1; ligneActuelle++) {
+                    Ligne ligneTmp = new Ligne();
+                    for (int colonneActuelle = -1; colonneActuelle <= 1; colonneActuelle++) {
+                        ligneTmp.ajoutCase(grille.get(i + ligneActuelle).getCase(j + colonneActuelle));
+
+                        if ((ligneActuelle != 1) && (colonneActuelle != 1)) { transitionsVoisins[indiceTabTrans] = grille.get(i + ligneActuelle).getCase(j + colonneActuelle).getMur(); indiceTabTrans++; }
+                        
+                        if (grille.get(i + ligneActuelle).getCase(j + colonneActuelle).getMur() == false) { nbreVoisinsBlanc++; };
+                    };
+                    tabTmp.add(ligneTmp);
+                };
+
+                //Verification que le nombre de voisins passant de noir a blanc soit égal à 1
+                int black2white = 0;
+                for (int k = 0; k < (transitionsVoisins.length-1); k++) {
+                    if ((transitionsVoisins[k] == false) && (transitionsVoisins[k + 1] == true)) { black2white++; }
+                }
+                //if ((transitionsVoisins[7] == false) && (transitionsVoisins[0] == true)) { black2white++; }  //Etant donné que la liste est circulaire
                 //Verification finale des conditions
                 if (
                     ((nbreVoisinsBlanc >= 2) && (nbreVoisinsBlanc <= 6)) &&
@@ -61,16 +107,67 @@ public class ZhangSuen implements Optimiseur {
 
     public ArrayList<Ligne> Optimisation(ArrayList<Ligne> grille) {
         //Parcours de la grille
+
+        //Etape 1
         for (int i = 1; i < grille.size() - 1; i++) { //commence a la deuxieme ligne, la premiere étant forcémment un bord
             //parcours des cases
-            for (int j = 0; j < grille.get(0).getLigne().size(); j++) {
+            for (int j = 1; j < grille.get(0).getLigne().size() - 1; j++) {
                 //Verification des conditions étape 1
                 Case caseActuelle = grille.get(i).getCase(j);
-                if ((caseActuelle.getMur() == false) && (VoisinsValides(i, j, grille))) {
+                if ((caseActuelle.getMur() == false) && (Etape1(i, j, grille))) {
                     caseActuelle.setMur(true);
                 }
             }
         }
+
+        //Etape 2
+        for (int i = 1; i < grille.size() - 1; i++) { //commence a la deuxieme ligne, la premiere étant forcémment un bord
+            //parcours des cases
+            for (int j = 1; j < grille.get(0).getLigne().size() - 1; j++) {
+                //Verification des conditions étape 1
+                Case caseActuelle = grille.get(i).getCase(j);
+                if ((caseActuelle.getMur() == false) && (Etape2(i, j, grille))) {
+                    caseActuelle.setMur(true);
+                }
+            }
+        }
+        /*
+        //Etape 1
+        for (int i = 1; i < grille.size() - 1; i++) { //commence a la deuxieme ligne, la premiere étant forcémment un bord
+            //parcours des cases
+            for (int j = 1; j < grille.get(0).getLigne().size() - 1; j++) {
+                //Verification des conditions étape 1
+                Case caseActuelle = grille.get(i).getCase(j);
+                if ((caseActuelle.getMur() == false) && (Etape1(i, j, grille))) {
+                    caseActuelle.setMur(true);
+                }
+            }
+        }
+
+        //Etape 2
+        for (int i = 1; i < grille.size() - 1; i++) { //commence a la deuxieme ligne, la premiere étant forcémment un bord
+            //parcours des cases
+            for (int j = 1; j < grille.get(0).getLigne().size() - 1; j++) {
+                //Verification des conditions étape 1
+                Case caseActuelle = grille.get(i).getCase(j);
+                if ((caseActuelle.getMur() == false) && (Etape2(i, j, grille))) {
+                    caseActuelle.setMur(true);
+                }
+            }
+        }
+
+        //Etape 1
+        for (int i = 1; i < grille.size() - 1; i++) { //commence a la deuxieme ligne, la premiere étant forcémment un bord
+            //parcours des cases
+            for (int j = 1; j < grille.get(0).getLigne().size() - 1; j++) {
+                //Verification des conditions étape 1
+                Case caseActuelle = grille.get(i).getCase(j);
+                if ((caseActuelle.getMur() == false) && (Etape1(i, j, grille))) {
+                    caseActuelle.setMur(true);
+                }
+            }
+        }
+        */
         return this.grille;
     }
     
